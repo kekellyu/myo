@@ -1,4 +1,4 @@
-# Controlling the myoleg and exoskeleton with myosuite deprl
+# Controlling the exoskeleton with myosuite deprl
 
 ## Changes:
 
