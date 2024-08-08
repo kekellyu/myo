@@ -1,6 +1,6 @@
-## Controlling the myoleg and exoskeleton with myosuite deprl
+# Controlling the myoleg and exoskeleton with myosuite deprl
 
-# Changes:
+## Changes:
 
 <1> integrate myoleg model with exoskeleton model
 
