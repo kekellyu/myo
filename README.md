@@ -10,3 +10,4 @@
 
 <4> delete the actuation for myoleg, add actuation only for exoskeleton
 
+<5> change the learning functions from myoleg to exoskeleton
