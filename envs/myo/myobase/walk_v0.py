@@ -206,8 +206,8 @@ class WalkEnvV0(BaseV0):
         vel_reward = self._get_vel_reward()
         cyclic_hip = self._get_cyclic_rew()
         ref_rot = self._get_ref_rotation_rew()
-        joint_angle_rew = self._get_joint_angle_rew(['hip_adduction_l', 'hip_adduction_r', 'hip_rotation_l',
-                                                       'hip_rotation_r'])
+        joint_angle_rew = self._get_joint_angle_rew(['LeftTransverseHipJoint','LeftFrontalHipJoint','LeftSagittalHipJoint','LeftSagittalKneeJoint', 'RightFrontalHipJoint',
+                                                       'RightSagittalHipJoint','RightTransverseHipJoint','RightSagittalKneeJoint'])
         act_mag = np.linalg.norm(self.obs_dict['act'], axis=-1)/self.sim.model.na if self.sim.model.na !=0 else 0
 
         rwd_dict = collections.OrderedDict((
@@ -228,11 +228,11 @@ class WalkEnvV0(BaseV0):
     def get_randomized_initial_state(self):
         # randomly start with flexed left or right knee
         if  self.np_random.uniform() < 0.5:
-            qpos = self.sim.model.key_qpos[2].copy()
-            qvel = self.sim.model.key_qvel[2].copy()
-        else:
             qpos = self.sim.model.key_qpos[3].copy()
             qvel = self.sim.model.key_qvel[3].copy()
+        else:
+            qpos = self.sim.model.key_qpos[2].copy()
+            qvel = self.sim.model.key_qvel[2].copy()
 
         # randomize qpos coordinates
         # but dont change height or rot state
@@ -290,17 +290,17 @@ class WalkEnvV0(BaseV0):
         """
         Get the height of both feet.
         """
-        foot_id_l = self.sim.model.body_name2id('talus_l')
-        foot_id_r = self.sim.model.body_name2id('talus_r')
+        foot_id_l = self.sim.model.body_name2id('LeftHenkeAnkleLink')
+        foot_id_r = self.sim.model.body_name2id('RightHenkeAnkleLink')
         return np.array([self.sim.data.body_xpos[foot_id_l][2], self.sim.data.body_xpos[foot_id_r][2]])
 
     def _get_feet_relative_position(self):
         """
         Get the feet positions relative to the pelvis.
         """
-        foot_id_l = self.sim.model.body_name2id('talus_l')
-        foot_id_r = self.sim.model.body_name2id('talus_r')
-        pelvis = self.sim.model.body_name2id('pelvis')
+        foot_id_l = self.sim.model.body_name2id('LeftHenkeAnkleLink')
+        foot_id_r = self.sim.model.body_name2id('RightHenkeAnkleLink')
+        pelvis = self.sim.model.body_name2id('torsoex')
         return np.array([self.sim.data.body_xpos[foot_id_l]-self.sim.data.body_xpos[pelvis], self.sim.data.body_xpos[foot_id_r]-self.sim.data.body_xpos[pelvis]])
 
     def _get_vel_reward(self):
@@ -317,7 +317,7 @@ class WalkEnvV0(BaseV0):
         """
         phase_var = (self.steps/self.hip_period) % 1
         des_angles = np.array([0.8 * np.cos(phase_var * 2 * np.pi + np.pi), 0.8 * np.cos(phase_var * 2 * np.pi)], dtype=np.float32)
-        angles = self._get_angle(['hip_flexion_l', 'hip_flexion_r'])
+        angles = self._get_angle(['LeftFrontalHipJoint', 'RightFrontalHipJoint'])
         return np.linalg.norm(des_angles - angles)
 
     def _get_ref_rotation_rew(self):
@@ -328,7 +328,7 @@ class WalkEnvV0(BaseV0):
         return np.exp(-np.linalg.norm(5.0 * (self.sim.data.qpos[3:7] - target_rot)))
 
     def _get_torso_angle(self):
-        body_id = self.sim.model.body_name2id('torso')
+        body_id = self.sim.model.body_name2id('torsoex')
         return self.sim.data.body_xquat[body_id]
 
     def _get_com_velocity(self):
